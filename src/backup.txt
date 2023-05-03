@@ -1,0 +1,2634 @@
+export function TestBST() {
+  const bst = new BinarySearchTree(10);
+  const arr = [5, 15, 6, 1, 8, 12, 18, 17];
+
+  console.log(bst);
+  console.log(arr);
+
+  // bst.Insert(5);
+  // bst.Insert(4);
+  // bst.Insert(6);
+
+  // bst.Insert(15);
+  // bst.Insert(6);
+
+  // bst.Insert(18);
+  // bst.Insert(17);
+
+  for (let x of arr) bst.Insert(x);
+  console.log(bst.Find(1));
+  // for (let x of arr) bst.Find(x);
+  // for (let x of arr) bst.GetNode();
+}
+
+export class Node {
+  public constructor(
+    public item: number,
+    public left: Node | undefined = undefined,
+    public right: Node | undefined = undefined
+  ) {}
+
+  public Destroy(): void {
+    this.left = undefined;
+    this.right = undefined;
+    this.item = 0;
+  }
+
+  public static Empty(): Node {
+    return new Node(-1);
+  }
+}
+
+export class BinarySearchTree {
+  public root: Node;
+  public size: number = 0;
+  public constructor(rootValue: number) {
+    this.root = new Node(rootValue);
+    this.size++;
+  }
+
+  public Insert(value: number): void {
+    let current: Node = this.GetLeafNode(value);
+    let added: Node = new Node(value);
+    this.size++;
+
+    if (value < current.item) {
+      current.left = added;
+      console.log("Inserted", added.item, "\nas LeftNode of", current.item);
+    } else {
+      current.right = added;
+      console.log("Inserted", added.item, "\nas RightNode of", current.item);
+    }
+
+    console.log(
+      "Current =",
+      current.item,
+      "L=",
+      current.left?.item,
+      "R=",
+      current.right?.item
+    );
+
+    console.log("++++++++++++++++++++++++++++++++++");
+  }
+
+  public Find(value: number, start: Node = this.root): boolean {
+    // Check If value is less than the current Value
+    //// True: Proceed to the left
+    ////// Check if it value is equal to the left node value
+    //////// True: return the True
+    //////// False: return the False
+
+    //// False: Proceed to the right
+    console.log("==========================");
+    let next: Node | undefined = start;
+    let isFound = false;
+    while (next) {
+      console.log("Finding value:", value, "next:", next.item);
+      isFound = next.item === value;
+      if (isFound) {
+        console.log("Found", value);
+        return isFound;
+      }
+      next = this.GetNext(value, next);
+    }
+    console.log("Not Found", value);
+    return isFound;
+  }
+
+  public GetLeafNode(value: number, current: Node = this.root): Node {
+    // Check If value is less than the current Node
+    //// Check if left node exist
+    ////// return left node
+    //// Else check if right node exist
+    ////// return right node
+
+    console.log("----------------------------------");
+    console.log(
+      "Value:",
+      value,
+      "Current:",
+      current.item,
+      "L:",
+      current.left?.item,
+      "R:",
+      current.right?.item
+    );
+
+    const next: Node | undefined = this.GetNext(value, current);
+    if (next) return this.GetLeafNode(value, next);
+
+    // ELSE node is a leaf
+
+    return current;
+  }
+
+  private GetNext(value: number, node: Node): Node | undefined {
+    if (value < node.item) return node.left;
+    return node.right;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+type NodeType<T> = Node<T> | undefined;
+
+class Node<T = number> {
+  public static Empty = (): undefined => undefined;
+
+  public constructor(
+    private item: T | undefined,
+    private next: NodeType<T> = undefined
+  ) {}
+
+  public Destroy() {
+    this.item = undefined;
+    this.next = undefined;
+  }
+
+  public IsEmpty(): boolean {
+    return this === undefined;
+  }
+
+  public SetNext(node: NodeType<T>): void {
+    this.next = node;
+  }
+
+  public GetNext(): NodeType<T> {
+    return this.next;
+  }
+
+  public SetItem(item: T): void {
+    this.item = item;
+  }
+
+  public GetItem(): T | undefined {
+    return this.item;
+  }
+
+  public ToString(): string {
+    return this.next
+      ? `[${this.item}] -> ${this.next.ToString()}`
+      : `[${this.item}]`;
+  }
+}
+
+export class LinkedList<T = number> {
+  public head: NodeType<T>;
+  public tail: NodeType<T>;
+  private count: number = 0;
+
+  public IsEmpty = (): boolean => this.head === undefined;
+
+  public AddTail(item: T): void {
+    if (item === undefined) throw new Error(`Cant Add "UNDEFINED" value!`);
+
+    let node: NodeType<T> = new Node<T>(item);
+
+    this.count++;
+
+    if (this.IsEmpty()) {
+      this.head = this.tail = node;
+      return;
+    }
+
+    this.tail?.SetNext(node);
+    this.tail = node;
+  }
+
+  // [Symbol.iterator](): Iterator<T, any, NodeType<T>> {
+  //   let iterateCount: number = 0;
+  //   let count:number = this.count;
+  //   let node = this.head;
+  //   return {
+  //     next: function() {
+  //       return {
+  //         done: iterateCount >= count,
+  //         value: node?.GetNext()
+  //       }
+  //     }
+  //   }
+  // }
+
+  public AddHead(item: T): void {
+    if (item === undefined) throw new Error(`Cant Add "UNDEFINED" value!`);
+
+    let node: NodeType<T> = new Node(item, undefined);
+
+    this.count++;
+
+    if (this.IsEmpty()) {
+      this.head = this.tail = node;
+      return;
+    }
+
+    node.SetNext(this.head);
+
+    this.head = node;
+  }
+
+  public Insert(item: T, index: number) {
+    if (index < 0)
+      throw new RangeError(`Index(${index}) should not be less than 0`);
+
+    let target: NodeType<T> = new Node<T>(item);
+    let curr: NodeType<T> = this.head;
+    let prev: NodeType<T> = undefined;
+    let count: number = 0;
+
+    if (index === 0) {
+      this.AddHead(item);
+      return;
+    }
+    if (index >= this.count) {
+      this.AddTail(item);
+      return;
+    }
+
+    while (curr) {
+      if (count === index) {
+        target?.SetNext(curr);
+        prev?.SetNext(target);
+        this.count++;
+        console.log("Inserted the " + target.GetItem() + " at " + index);
+        return;
+      }
+      prev = curr;
+      curr = curr?.GetNext();
+      count++;
+    }
+  }
+
+  public IndexOf(item: T): number {
+    let index: number = 0;
+    let node: NodeType<T> = this.head;
+
+    while (node) {
+      if (node?.GetItem() === item) return index;
+      node = node.GetNext();
+      index++;
+    }
+
+    return -1;
+  }
+
+  public Has(item: T): boolean {
+    return this.IndexOf(item) !== -1;
+  }
+
+  public GetCount(): number {
+    return this.count;
+  }
+
+  public Clear(): void {
+    this.count = 0;
+    this.head = undefined;
+    this.tail = undefined;
+  }
+
+  public RemoveHead(): void {
+    if (this.IsEmpty())
+      throw new Error(
+        `Cant Delete on the HEAD index because the LinkedList is empty`
+      );
+
+    if (this.head === this.tail) {
+      this.head = this.tail = undefined;
+      this.count = 0;
+      return;
+    }
+
+    let node: NodeType<T> = this.head?.GetNext();
+    this.head?.SetNext(Node.Empty());
+    this.head = node;
+    this.count--;
+  }
+
+  public RemoveTail(): void {
+    if (this.IsEmpty())
+      throw new Error(
+        `Cant Delete on the TAIL index because the LinkedList is empty`
+      );
+
+    if (this.head === this.tail) {
+      this.head = this.tail = undefined;
+      this.count = 0;
+      return;
+    }
+
+    let prev: NodeType<T> = this.GetPreviousNode(this.tail);
+
+    if (!prev) return;
+
+    this.tail = prev;
+    this.tail?.SetNext(Node.Empty());
+
+    this.count--;
+  }
+
+  public RemoveAt(index: number): void {
+    if (this.IsEmpty())
+      throw new Error(
+        `Cant Delete on the TAIL index because the LinkedList is empty`
+      );
+
+    if (index < 0)
+      throw new RangeError(`Index(${index}) should not be less than 0`);
+
+    let curr: NodeType<T> = this.head;
+    let prev: NodeType<T> = curr;
+    let count: number = 0;
+
+    if (index === 0) {
+      this.RemoveHead();
+      return;
+    }
+    if (index >= this.count) {
+      this.RemoveTail();
+      return;
+    }
+
+    while (curr) {
+      if (count === index) {
+        prev?.SetNext(curr.GetNext());
+        curr.SetNext(Node.Empty());
+        curr = undefined;
+        this.count--;
+        return;
+      }
+      prev = curr;
+      curr = curr?.GetNext();
+      count++;
+    }
+  }
+
+  public GetPreviousNode(
+    target: NodeType<T>,
+    start: NodeType<T> = this.head
+  ): NodeType<T> {
+    let current: NodeType<T> = start;
+
+    while (current) {
+      if (current.GetNext() === target) return current;
+      current = current?.GetNext();
+    }
+
+    return undefined;
+  }
+
+  public ToArray(): T[] {
+    const list: T[] = [];
+    let node: NodeType<T> = this.head;
+
+    while (node) {
+      list.push(node?.GetItem() as T);
+      node = node?.GetNext();
+    }
+
+    return list;
+  }
+
+  public ToString(): string {
+    let node: NodeType<T> = this.head;
+    let text: string = "";
+
+    while (node) {
+      text =
+        node?.GetNext() === undefined
+          ? text + `[${node.GetItem()}]`
+          : text + `[${node.GetItem()}] -> `;
+      node = node?.GetNext();
+    }
+
+    return text;
+  }
+
+  public Reverse(): void {
+    let current: NodeType<T> = this.head;
+    let next: NodeType<T>;
+    let prev: NodeType<T> = undefined;
+    while (current) {
+      next = current?.GetNext();
+      current.SetNext(prev === undefined ? Node.Empty() : prev);
+      prev = current;
+      current = next;
+    }
+
+    [this.tail, this.head] = [this.head, this.tail];
+  }
+
+  public GetTailAt(k: number, isErrorMode: boolean = true): NodeType<T> {
+    if (k <= 0)
+      throw new RangeError(
+        "K(" + k + ") should not be less than or equal to 0."
+      );
+
+    if (isErrorMode && k > this.count)
+      throw new RangeError(
+        `K(${k}) Index is greater than the actual size or count(${this.count}) of the Linked List`
+      );
+
+    let count: number = 0;
+    let first: NodeType<T> = this.head;
+    let second: NodeType<T> = first;
+
+    if (k === this.count) return first;
+
+    while (second !== this.tail) {
+      if (count >= k - 1) first = first?.GetNext();
+
+      second = second?.GetNext();
+      count++;
+    }
+
+    return first;
+  }
+}
+
+export function TestNode() {
+  const list: LinkedList<string> = new LinkedList<string>();
+  list.AddTail("11");
+  list.AddTail("22");
+  list.AddTail("33");
+  list.AddTail("44");
+  list.AddTail("55");
+  list.AddTail("66");
+  list.AddTail("100");
+
+  console.log(list);
+  console.log(list.ToString());
+  console.log(list.ToArray());
+
+  list.RemoveAt(3);
+  console.log(list.ToString());
+  console.log(list.GetCount());
+
+  list.RemoveAt(0);
+  console.log(list.ToString());
+  console.log(list.GetCount());
+
+  list.RemoveAt(100);
+  console.log(list.ToString());
+  console.log(list.ToArray());
+  console.log(list.GetCount());
+
+  // list.Insert("99", 2)
+  // console.log(list.ToString());
+  // console.log(list.GetCount());
+
+  // list.Insert("11", 0)
+  // console.log(list.ToString());
+  // console.log(list.GetCount());
+
+  // list.Insert("200", 8)
+  // console.log(list.ToString());
+  // console.log(list.GetCount());
+
+  // list.Insert("300", 29)
+  // console.log(list.ToString());
+  // console.log(list.GetCount());
+
+  // console.log(list.GetTailAt(2))
+  // console.log(list.GetLastAt(3))
+
+  // list.Reverse()
+  // console.log(list);
+  // console.log(list.ToString());
+
+  // console.log(list.ToArray());
+  // console.log(list.IndexOf("1111111111"));
+  // console.log(list.Has("11111111111"));
+
+  // console.log(list.Size())
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { Collections } from "../datastructures/Stack"
+
+export function TestStr(){
+    // console.log(StringUtil.ReverseString("abcdefghi"))
+    Util.IsBalance("([<1 + 1>]]")
+}
+
+
+function Either<T = string>(target: T, ...vals: T[]): boolean{
+    for (let x of vals)
+        if (x === target)
+            return true;
+    return false;
+}
+
+export class Util<T = number>{
+    public stack: T [] = [];
+
+    public static openChar: string[] = [ '[', '(', '<', '{' ] 
+    public static closeChar: string[] =[ ']', ')', '>', '}' ] 
+
+    public constructor(){}
+/*
+    public static IsBalance(str: string){
+        // loop on string
+        // get each char
+        // switch 
+            // if opening brac, par, angle
+                // push to the stack or array
+            // if closing brac, par, angle
+                // pop the stack
+            // else ignore
+        
+        const stack: Collections.Generic.Stack<string> = new Collections.Generic.Stack<string>()
+        const chars: string[] = str.split("")
+        for (let c of chars) {
+            let open: number = this.openChar.indexOf(stack.Peek() as string);
+            let close: number = this.closeChar.indexOf(c);
+
+            if (Util.Either(c, ...this.openChar)) {
+                console.log("Pushed: " + c)
+                stack.Push(c)
+                stack.LogList()
+                continue;
+            }
+
+            if(open === close){
+                console.log("OPEN/PEEK: " + stack.Peek() + ", index: " + open)
+                console.log("CLOSE: "+ c + ", index: " + close)
+                console.log("POPPED: "+ stack.Pop())
+                stack.LogList()
+                continue;
+            }
+
+        }
+
+        console.log(stack.IsEmpty() ? "Balance" : "Not Balance")
+    }
+*/
+
+    public static IsBalance(str: string){
+        const stack: Collections.Generic.Stack<string> = new Collections.Generic.Stack<string>()
+        const chars: string[] = str.split("")
+        let open: number = -1;
+        let close: number = -1;
+
+        for (let ch of chars) {
+            open = this.openChar.indexOf(stack.Peek() as string);
+            close = this.closeChar.indexOf(ch);
+
+            if (Either(ch, ...this.openChar)) {
+                console.log("Pushed: " + ch)
+                stack.Push(ch)
+                console.log(stack.GetStack());
+                continue;
+            }
+
+            if (open === close) {
+                console.log("POPPED: "+ stack.Pop())
+                console.log(stack.GetStack());
+                continue;
+            }
+
+            if (Either(ch, ...this.closeChar)) 
+                break;
+        }
+
+        console.log(stack.IsEmpty() ? "Balance" : "Not Balance")
+    }
+
+    public static ReverseString(str: string){
+        let result: string = ""
+        for(let c: number = str.length - 1; c >= 0; c--)
+            result += " " + str[c]
+        return result;
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import Collection from "./Collection";
+// import { CircularQueue } from "./Collection"
+
+
+type QueuePos = {
+    front: number,
+    rear: number
+}
+export function SampleCall(){
+    // const lq: Collections.Generic.LinearQueue<number> = new Collections.Generic.LinearQueue<number>(2, true);
+    // const cq: Collections.Generic.CircularQueue<number> = new Collections.Generic.CircularQueue<number>(3, true);
+
+    // lq.EQ(100);
+    // lq.EQ(200);
+    // lq.EQ(300);
+    // lq.EQ(400);
+
+    // lq.Print();
+
+    // cq.EQ(100);
+    // cq.EQ(200);
+    // cq.EQ(300);
+
+    // cq.LL();
+
+    // cq.EQ(400);
+    // cq.EQ(500);
+
+    // cq.DQ();
+    // cq.DQ();
+
+    // cq.EQ(400);
+    
+    // cq.LL();
+}
+
+// export let lq: Collections.Generic.LinearQueue<number>;
+// export let cq: Collections.Generic.CircularQueue<number>;
+
+// export const SampleLQ = (size: number): void => { lq = new Collections.Generic.LinearQueue<number>(size, true);}
+// export const SampleEQ = (value: number): void => { lq.EQ(value); }
+// export const SampleDQ = (): number | undefined => lq.DQ();
+// export const SamplePK = (): number | undefined => lq.Peek();
+
+// export const CCQ = (size: number): void => { cq = new Collections.Generic.CircularQueue<number>(3, true);
+// export const CQEQ = (value: number): void => { lq.EQ(value); }
+// export const CQDQ = (): number | undefined => lq.DQ();
+// export const CQPK = (): number | undefined => lq.Peek();
+
+export namespace Collections.Generic{
+    export interface IQueue<T = number | undefined>{
+        Enqueue: (newValue: T) => void;
+        Dequeue: () => T | undefined;
+    }
+    export abstract class Queue<T = number | undefined> extends Collection<T> implements IQueue<T>{
+        protected collectionName: string;
+        protected isDebug: boolean = false;
+
+        protected queue: T[] | undefined[] = [];
+
+        protected frontIndex: number = -1;
+        protected rearIndex: number = -1;
+        protected readonly size: number = -1;
+
+        public constructor(size: number, collectionName: string, isDebug: boolean = false){
+            super();
+            this.size = size;
+            this.isDebug = isDebug;
+            // if(isDebug) console.log(`${collectionName} is created with size ${size} `)
+            this.queue.length = size;
+            this.collectionName = collectionName;
+            this.Reset();
+        }
+        
+        public abstract readonly Enqueue: (newValue: T) => void;
+        
+        public abstract readonly Dequeue: () => T | undefined;
+
+        public readonly EQ = (newValue: T): void => this.Enqueue(newValue);
+        
+        public readonly DQ = (): T | undefined  => this.Dequeue();
+        
+        public readonly LL = (): void  => this.LogList();
+        
+        public readonly IsFrontEnded = (): boolean => this.frontIndex > this.rearIndex;
+        
+        public readonly IsRearEnded = (): boolean => this.rearIndex >= this.GetSize();
+        
+        public readonly IsNextEmpty = (index: number): boolean => {
+            console.log(`this.queue[${index + 1}](${this.queue[index + 1]}) === undefined = ${this.queue[index + 1] === undefined} `)
+            return this.queue[index + 1] === undefined;
+        }
+
+        public readonly GetFront = (): number | undefined => this.frontIndex;
+
+        public readonly GetRear = (): number | undefined => this.rearIndex;
+        
+        public readonly GetQueue = (): T[] => this.queue as T[];
+        
+        public readonly GetIndices = (): QueuePos => { 
+            return {front: this.frontIndex, rear: this.rearIndex}
+        };
+        
+        public override readonly GetSize = ():number => this.queue.length - 1;
+
+        public override readonly IsEmpty = (): boolean => this.frontIndex === -1;
+
+        public override readonly IsFull = (): boolean => this.frontIndex === 0 && this.IsRearEnded(); 
+
+        public override readonly Peek = ():  T | undefined => this.queue[this.frontIndex];
+
+        public override readonly ToString = (): string => this.queue.toString();
+
+        public override readonly LogList = (): void => {
+            console.log(this.collectionName + ": ");
+            console.log(this.queue);
+        }
+        
+        public override readonly Reset = ():void => {
+            if(this.isDebug)
+                console.log(this.collectionName + " is reset");
+            this.frontIndex = -1;
+            this.rearIndex = -1;
+        };
+    }
+    
+    export class LinearQueue<T = number | undefined> extends Queue<T> {
+        public constructor(size: number, isDebug: boolean = false){
+            super(size, "LinearQueue", isDebug);
+        }
+
+        public override readonly Enqueue = (newValue: T): void => {
+            if(this.IsFull()) {
+                this.LogError(this.collectionName, "Full", "Added/Enqueued", this.GetSize(), this.rearIndex, "Rear Index");
+                return;
+            }
+
+            if(this.IsEmpty())
+                this.frontIndex = 0;
+
+            this.queue[++this.rearIndex] = newValue;
+
+            if (this.isDebug){
+                this.LogList();
+                this.LogSuccess(this.collectionName, "Added/Enqueued", this.queue, this.rearIndex, "Rear index");
+            }
+        };
+
+        public Dequeue = (): T | undefined => {
+            if(this.IsEmpty()) {
+                this.LogError(this.collectionName, "Empty", "Dequeue", this.size, this.frontIndex, "Front Index");
+                return undefined;
+            }
+
+            if (this.isDebug){
+                this.LogList();
+                this.LogSuccess(this.collectionName, "Removed/Dequeued", this.queue, this.frontIndex , "Front index");
+            }
+
+            this.queue[this.frontIndex] = undefined;
+            const result: T | undefined = this.queue[this.frontIndex++];
+     
+            if(this.IsFrontEnded())
+                this.Reset();
+
+            return result;
+        };
+    }
+
+    export class CircularQueue<T = number | undefined> extends Queue<T> {
+        
+        public constructor(size: number, isDebug: boolean = false){
+            super(size, "CircularQueue", isDebug);
+        }
+        // private IsRearEnd = (): boolean => this.rearIndex >= this.queue.length - 1;
+        public override readonly IsFull = (): boolean => {
+            console.log("this.rearIndex >= this.queue.length - 1 || this.rearIndex + 1 === this.frontIndex");
+            console.log(`(${this.rearIndex} >= ${this.GetSize()} || ${this.rearIndex + 1} === ${this.frontIndex}) = ${this.rearIndex >= this.GetSize() || this.rearIndex + 1 === this.frontIndex}`);
+            console.log("---------------------------------------------------------------------------------");
+
+            return this.rearIndex >= this.GetSize() || this.rearIndex + 1 === this.frontIndex
+        };
+
+    
+        private IsFrontEnd = (): boolean => {
+            console.log("this.frontIndex >= this.queue.length - 1");
+            console.log(`(${this.frontIndex} >= ${this.GetSize()}) = ${this.frontIndex >= this.GetSize()}`);
+            console.log("---------------------------------------------------------------------------------");
+            return this.frontIndex >= this.queue.length //|| this.frontIndex + 1 >= this.rearIndex;
+        }
+
+        public override readonly IsEmpty = (): boolean  => this.frontIndex === -1
+
+        // Fix Enqueue and Dequeue of Cicular Queue
+        
+        public override readonly Enqueue = (newValue: T): void => {
+            const tempRear: number = this.rearIndex;
+
+            if(this.IsFull())
+                this.rearIndex = -1;
+
+            if(!this.IsNextEmpty(this.rearIndex)){
+                this.rearIndex = tempRear;
+                this.LogError(this.collectionName, "Full", "Added/Enqueue", this.GetSize() + 1, this.rearIndex, "Rear Index");
+                return;
+            }
+
+            if(this.IsEmpty()) 
+                this.frontIndex = 0;
+            
+            console.log("Enqueue " + this.collectionName)
+
+            this.rearIndex++;
+
+            this.queue[this.rearIndex] = newValue;
+
+            if (this.isDebug){
+                this.LogList();
+                console.log(this.GetIndices())
+                this.LogSuccess("Queue", "Added/Enqueued", this.queue, this.rearIndex, "Rear index");
+            }
+        }
+
+ ;       public Dequeue = (): T | undefined => {
+            console.log("Dequeue " + this.collectionName)
+            const tempFront: number = this.frontIndex
+
+            if(this.IsFrontEnd())
+                this.frontIndex = -1
+
+            // fix here
+            if(this.IsEmpty()) {
+                this.frontIndex = -1;
+                this.LogError("Queue", "Empty", "Dequeue", this.size, this.frontIndex, "Front Index");
+                return undefined;
+            }
+
+            if (this.isDebug){
+                this.LogList();
+                console.log(this.GetIndices())
+                this.LogSuccess("Queue", "Removed/Dequeued", this.queue, this.frontIndex, "Front index");
+            }
+
+            this.queue[this.frontIndex] = undefined;
+            const result: T | undefined = this.queue[this.frontIndex++];
+     
+            // if(this.IsFrontEnded())
+            //     this.Reset();
+
+            return result;
+        };
+    }
+
+// type CQType = number | undefined;
+
+//     export class CircularQueue<T = CQType> {
+//         public size: number;
+//         public front: number = -1;
+//         public rear: number = -1;
+//         private queue: T[] = [];
+
+//         public constructor(size: number){
+//             if (size <= 0)
+//                 throw new Error(`Size(${size}) must not be less than 0`)
+//             this.size = size;
+//         }
+
+//         public ToString(): string { return this.queue.toString(); }
+
+//         public IsEmpty(): boolean { return this.front === -1; }
+        
+//         public IsFull(): boolean { return this.front === 0 && this.rear === this.size - 1}
+
+//         public Enqueue(item: T){
+//             // if(this.IsFull())
+//             if(this.IsEmpty()){
+//                 this.front = 0;
+//                 this.rear = 0;
+//             }
+//             this.queue[this.rear] = item; 
+//             this.front++;
+//         }
+//     }
+}
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+type NodeType<T> = Node<T> | undefined;
+
+
+class Node<T = number>{
+    public static Empty = (): undefined => undefined;
+    
+    public constructor(private item: T | undefined, private next: NodeType<T> = undefined){}
+    
+    public Destroy(){
+        this.item = undefined;
+        this.next = undefined;
+    }
+
+    public IsEmpty(): boolean { return this === undefined }
+    
+    public SetNext(node: NodeType<T>): void {this.next = node}
+
+    public GetNext(): NodeType<T>{ return this.next; }
+
+    public SetItem(item: T): void {this.item = item}
+
+    public GetItem(): T | undefined { return this.item; }
+
+    public ToString(): string { return this.next ? `[${this.item}] -> ${this.next.ToString()}` : `[${this.item}]` }
+}
+
+
+export class LinkedList<T = number>{
+    public head: NodeType<T>;
+    public tail: NodeType<T>;
+    private count: number = 0;
+
+    public IsEmpty = (): boolean => this.head === undefined
+
+    public AddTail(item: T): void{
+        if(item === undefined)
+            throw new Error(`Cant Add "UNDEFINED" value!`);
+        
+        let node: NodeType<T> = new Node<T>(item);
+
+        this.count++;
+
+        if (this.IsEmpty()){
+            this.head = this.tail  = node;
+            return;
+        }
+
+        this.tail?.SetNext(node);
+        this.tail = node;
+    }
+
+    public AddHead(item: T): void {
+        if(item === undefined)
+            throw new Error(`Cant Add "UNDEFINED" value!`);
+        
+        let node: NodeType<T> = this.head;
+        
+        this.count++;
+        
+        if (this.IsEmpty()){
+            this.head = this.tail  = node;
+            return;
+        }
+
+        this.head = new Node(item, node)
+    }
+
+    public IndexOf(item: T): number {
+        let index: number = 0;
+        let node: NodeType<T> = this.head;
+
+        while(node){
+            if(node?.GetItem() === item) return index;
+            node = node.GetNext();
+            index++;
+        }
+
+        return -1;
+    }
+
+    public Has(item: T): boolean { return this.IndexOf(item) !== -1; }
+    
+    public GetCount(): number { return this.count; }
+
+    public Clear(): void {
+        this.count = 0;
+        this.head = undefined;
+        this.tail = undefined;
+    }
+
+    public RemoveHead(): void{
+        if(this.IsEmpty())
+            throw new Error(`Cant Delete on the HEAD index because the LinkedList is empty`);
+
+        if (this.head === this.tail){
+            this.head = this.tail  = undefined;
+            this.count = 0;
+            return;
+        }
+
+        let node: NodeType<T> = this.head?.GetNext();
+        this.head?.SetNext(Node.Empty())
+        this.head = node;
+        this.count--;
+    }
+
+    public RemoveTail(): void{
+        if(this.IsEmpty())
+            throw new Error(`Cant Delete on the TAIL index because the LinkedList is empty`);
+        
+        if (this.head === this.tail){
+            this.head = this.tail  = undefined;
+            this.count = 0;
+            return;
+        }
+        
+        let prev: NodeType<T> = this.GetPreviousNode(this.tail);
+        
+        if(!prev) return;
+
+        this.tail = prev;
+        this.tail?.SetNext(Node.Empty());
+        
+        this.count--;
+    }
+
+    private GetPreviousNode(target: NodeType<T>, start: NodeType<T> = this.head): NodeType<T> {
+        let current: NodeType<T> = start;
+        
+        while(current){
+            if(current.GetNext() === target)
+                return current;
+            current = current?.GetNext()
+        }
+        
+        return undefined;
+    }
+ 
+    public ToArray(): T[] {
+        const list: T[] = [];
+        let node: NodeType<T> = this.head;
+
+        while(node){
+            list.push(node?.GetItem() as T)
+            node = node?.GetNext()
+        }
+
+        return list;
+    }
+
+    public ToString(): string {
+        let node: NodeType<T> = this.head;
+        let text: string = "";
+
+        while(node){
+            text = node?.GetNext() === undefined ? text + `[${node.GetItem()}]` : text + `[${node.GetItem()}] -> `
+            node = node?.GetNext()
+        }
+        
+        return text;
+    }
+
+    /*
+    public Reverse(): void {
+        [this.tail, this.head] = [this.head, this.tail]
+
+        let pHead: NodeType<T> = this.head;
+        let next: NodeType<T>;
+
+        while(pHead !== this.tail){
+            next = this.GetPreviousNode(pHead, this.tail)
+            next?.SetNext(Node.Empty())
+            pHead?.SetNext(next)
+            pHead = next
+        }
+    }*/
+
+    public Reverse(): void {
+        let current: NodeType<T> = this.head;
+        let next: NodeType<T>;
+        let prev: NodeType<T> = undefined;
+        while(current){
+            next = current?.GetNext();
+            current.SetNext(prev === undefined ? Node.Empty() : prev)
+            prev = current
+            current = next;
+        }
+
+        [this.tail, this.head] = [this.head, this.tail]
+    }
+
+    public GetLastAt(k: number, isErrorMode: boolean = false): NodeType<T> {
+        if(k <= 0)
+            throw new RangeError("K("+ k +") should not be less than or equal to 0.")
+
+
+        
+        let count: number = 0;
+        let distance: number = k - 1;
+        let first: NodeType<T> = this.head;
+        let second: NodeType<T>  = first;
+
+        console.log("Target K: " + k)
+        console.log("Distance: " + distance)
+
+        if(k === this.count)
+            return first;
+
+        while(first){
+
+            if(second === this.tail)
+                return first;
+
+            if(count >= distance)
+                first = first?.GetNext();
+
+            second = second?.GetNext();
+
+            console.log("count >= distance")
+            console.log(`${count} >= ${distance}: ${count >= distance}`)
+            console.log("+++++++++++++++++++++++++++++++++++++")
+            console.log("first: " + first?.GetItem())
+            console.log("second: " + second?.GetItem())
+            console.log("=========================================")
+            count++;
+        }
+
+        if(isErrorMode)
+            throw new RangeError(`K(${k}) Index is greater than the actual size or count(${this.count}) of the Linked List`)
+        
+        return undefined;
+    }
+}
+
+
+export function TestNode(){
+    const list: LinkedList<string> = new LinkedList<string>()
+    list.AddTail("11");
+    list.AddTail("22");
+    list.AddTail("33");
+    list.AddTail("44");
+    list.AddTail("55");
+
+    console.log(list);
+    console.log(list.ToString());
+    console.log(list.ToArray());
+
+    console.log(list.GetLastAt(4))
+    // list.Reverse()
+    // console.log(list);
+    // console.log(list.ToString());
+
+    // console.log(list.ToArray());
+    // console.log(list.IndexOf("1111111111"));
+    // console.log(list.Has("11111111111"));
+
+    // console.log(list.Size())
+}
+
+
+
+
+===============================================================================================
+
+
+
+
+
+type NodeType<T> = Node<T> | undefined;
+
+
+class Node<T = number>{
+    public static Empty = (): undefined => undefined;
+    
+    public constructor(private item: T | undefined, private next: NodeType<T> = undefined){}
+    
+    public Destroy(){
+        this.item = undefined;
+        this.next = undefined;
+    }
+
+    public IsEmpty(): boolean { return this === undefined }
+    
+    public SetNext(node: NodeType<T>): void {this.next = node}
+
+    public GetNext(): NodeType<T>{ return this.next; }
+
+    public SetItem(item: T): void {this.item = item}
+
+    public GetItem(): T | undefined { return this.item; }
+
+    public ToString(): string { return this.next ? `[${this.item}] -> ${this.next.ToString()}` : `[${this.item}]` }
+}
+
+
+export class LinkedList<T = number>{
+    public head: NodeType<T>;
+    public tail: NodeType<T>;
+    private count: number = 0;
+
+    public IsEmpty = (): boolean => this.head === undefined
+
+    public AddTail(item: T): void{
+        if(item === undefined)
+            throw new Error(`Cant Add "UNDEFINED" value!`);
+        
+        let node: NodeType<T> = new Node<T>(item);
+
+        this.count++;
+
+        if (this.IsEmpty()){
+            this.head = this.tail  = node;
+            return;
+        }
+
+        this.tail?.SetNext(node);
+        this.tail = node;
+    }
+
+    public AddHead(item: T): void {
+        if(item === undefined)
+            throw new Error(`Cant Add "UNDEFINED" value!`);
+        
+        let node: NodeType<T> = this.head;
+        
+        this.count++;
+        
+        if (this.IsEmpty()){
+            this.head = this.tail  = node;
+            return;
+        }
+
+        this.head = new Node(item, node)
+    }
+
+    public IndexOf(item: T): number {
+        let index: number = 0;
+        let node: NodeType<T> = this.head;
+
+        while(node){
+            if(node?.GetItem() === item) return index;
+            node = node.GetNext();
+            index++;
+        }
+
+        return -1;
+    }
+
+    public Has(item: T): boolean { return this.IndexOf(item) !== -1; }
+    
+    public GetCount(): number { return this.count; }
+
+    public Clear(): void {
+        this.count = 0;
+        this.head = undefined;
+        this.tail = undefined;
+    }
+
+    public RemoveHead(): void{
+        if(this.IsEmpty())
+            throw new Error(`Cant Delete on the HEAD index because the LinkedList is empty`);
+
+        if (this.head === this.tail){
+            this.head = this.tail  = undefined;
+            this.count = 0;
+            return;
+        }
+
+        let node: NodeType<T> = this.head?.GetNext();
+        this.head?.SetNext(Node.Empty())
+        this.head = node;
+        this.count--;
+    }
+
+    public RemoveTail(): void{
+        if(this.IsEmpty())
+            throw new Error(`Cant Delete on the TAIL index because the LinkedList is empty`);
+        
+        if (this.head === this.tail){
+            this.head = this.tail  = undefined;
+            this.count = 0;
+            return;
+        }
+        
+        let prev: NodeType<T> = this.GetPreviousNode(this.tail);
+        
+        if(!prev) return;
+
+        this.tail = prev;
+        this.tail?.SetNext(Node.Empty());
+        
+        this.count--;
+    }
+
+    private GetPreviousNode(target: NodeType<T>, start: NodeType<T> = this.head): NodeType<T> {
+        let current: NodeType<T> = start;
+        
+        while(current){
+            if(current.GetNext() === target)
+                return current;
+            current = current?.GetNext()
+        }
+        
+        return undefined;
+    }
+ 
+    public ToArray(): T[] {
+        const list: T[] = [];
+        let node: NodeType<T> = this.head;
+
+        while(node){
+            list.push(node?.GetItem() as T)
+            node = node?.GetNext()
+        }
+
+        return list;
+    }
+
+    public ToString(): string {
+        let node: NodeType<T> = this.head;
+        let text: string = "";
+
+        while(node){
+            text = node?.GetNext() === undefined ? text + `[${node.GetItem()}]` : text + `[${node.GetItem()}] -> `
+            node = node?.GetNext()
+        }
+        
+        return text;
+    }
+
+    /*
+    public Reverse(): void {
+        [this.tail, this.head] = [this.head, this.tail]
+
+        let pHead: NodeType<T> = this.head;
+        let next: NodeType<T>;
+
+        while(pHead !== this.tail){
+            next = this.GetPreviousNode(pHead, this.tail)
+            next?.SetNext(Node.Empty())
+            pHead?.SetNext(next)
+            pHead = next
+        }
+    }*/
+
+    public Reverse(): void {
+        let current: NodeType<T> = this.head;
+        let next: NodeType<T>;
+        let prev: NodeType<T> = undefined;
+        while(current){
+            next = current?.GetNext();
+            current.SetNext(prev === undefined ? Node.Empty() : prev)
+            prev = current
+            current = next;
+        }
+
+        [this.tail, this.head] = [this.head, this.tail]
+    }
+
+    public GetLastAt(k: number): NodeType<T> {
+        if(k <= 0)
+            throw new RangeError("K("+ k +") should not be less than or equal to 0.")
+
+        const pivot: number = Math.ceil(this.count / 2);
+        let count: number = 0;
+        let first: NodeType<T> = this.head;
+        let second: NodeType<T>  = first;
+        
+        while(first){
+            if(count > this.count)
+                return;
+            if(count >= pivot){
+                second = second?.GetNext();
+                console.log("first: " + first.ToString())
+                console.log("second: " + second?.ToString())
+                console.log("=========================================")
+                count++;
+                continue;
+            }
+
+            first = first.GetNext();
+            second = first;
+            console.log(count)
+            count++;
+        }
+
+        return undefined;
+    }
+}
+
+
+export function TestNode(){
+    const list: LinkedList<string> = new LinkedList<string>()
+    list.AddTail("00000000000");
+    list.AddTail("11111111111");
+    list.AddTail("22222222222");
+    list.AddTail("33333333333");
+    // list.AddTail("44444444444");
+    // list.AddTail("55555555555");
+    // list.AddTail("66666666666");
+
+    console.log(list);
+    console.log(list.ToString());
+    console.log(list.ToArray());
+
+    console.log(list.GetLastAt(1))
+    // list.Reverse()
+    // console.log(list);
+    // console.log(list.ToString());
+
+    // console.log(list.ToArray());
+    // console.log(list.IndexOf("1111111111"));
+    // console.log(list.Has("11111111111"));
+
+    // console.log(list.Size())
+}
+
+
+---------------------------------------------------------------------------
+
+
+
+
+class Node<T = number>{
+    public static Empty = (): undefined => undefined;
+    
+    public constructor(private item: T | undefined, private next: Node<T> | undefined = undefined){}
+    
+    public Destroy(){
+        this.item = undefined;
+        this.next = undefined;
+    }
+
+    public SetNext(node: Node<T> | undefined): void {this.next = node}
+
+    public GetNext(): Node<T> | undefined{ return this.next; }
+
+    public SetItem(item: T): void {this.item = item}
+
+    public GetItem(): T | undefined { return this.item; }
+    public ToString(): string { return this.next ? `[${this.item}] -> ${this.next.ToString()}` : `[${this.item}]` }
+}
+
+
+export class LinkedList<T = number>{
+    public head: Node<T> | undefined;
+    public tail: Node<T> | undefined;
+    private count: number = 0;
+
+    public IsEmpty = (): boolean => this.head === undefined
+
+    public AddTail(item: T): void{
+        if(item === undefined)
+            throw new Error(`Cant Add "UNDEFINED" value!`);
+        
+        let node: Node<T> | undefined = new Node<T>(item);
+
+        this.count++;
+
+        if (this.IsEmpty()){
+            this.head = this.tail  = node;
+            return;
+        }
+
+        this.tail?.SetNext(node);
+        this.tail = node;
+    }
+
+    public AddHead(item: T): void {
+        if(item === undefined)
+            throw new Error(`Cant Add "UNDEFINED" value!`);
+        
+        let node: Node<T> | undefined = this.head;
+        
+        this.count++;
+        
+        if (this.IsEmpty()){
+            this.head = this.tail  = node;
+            return;
+        }
+
+        this.head = new Node(item, node)
+    }
+
+    public IndexOf(item: T): number {
+        let index: number = 0;
+        let node: Node<T> | undefined = this.head;
+
+        while(node){
+            if(node?.GetItem() === item) return index;
+            node = node.GetNext();
+            index++;
+        }
+
+        return -1;
+    }
+
+    public Has(item: T): boolean { return this.IndexOf(item) !== -1; }
+    
+    public GetCount(): number { return this.count; }
+
+    public Clear(): void {
+        this.count = 0;
+        this.head = undefined;
+        this.tail = undefined;
+    }
+
+    public RemoveHead(): void{
+        if(this.IsEmpty())
+            throw new Error(`Cant Delete on the HEAD index because the LinkedList is empty`);
+
+        if (this.head === this.tail){
+            this.head = this.tail  = undefined;
+            this.count = 0;
+            return;
+        }
+
+        let node: Node<T> | undefined = this.head?.GetNext();
+        this.head?.SetNext(Node.Empty())
+        this.head = node;
+        this.count--;
+    }
+
+    public RemoveTail(): void{
+        if(this.IsEmpty())
+            throw new Error(`Cant Delete on the TAIL index because the LinkedList is empty`);
+        
+        if (this.head === this.tail){
+            this.head = this.tail  = undefined;
+            this.count = 0;
+            return;
+        }
+        
+        let prev: Node<T> | undefined = this.GetPreviousNode(this.tail);
+        
+        if(!prev) return;
+
+        this.tail = prev;
+        this.tail?.SetNext(Node.Empty());
+        
+        this.count--;
+    }
+
+    private GetPreviousNode(target: Node<T> | undefined): Node<T> | undefined {
+        let current: Node<T> | undefined = this.head;
+        
+        while(current){
+            if(current.GetNext() === target){
+                this.count--;
+                return current;
+            }
+            current = current?.GetNext()
+        }
+        
+        return undefined;
+    }
+ 
+    public ToArray(): T[] {
+        const list: T[] = [];
+        let node: Node<T> | undefined = this.head;
+
+        while(node){
+            list.push(node?.GetItem() as T)
+            node = node?.GetNext()
+        }
+
+        return list;
+    }
+
+    public ToString(): string {
+        let node: Node<T> | undefined = this.head;
+        let text: string = "";
+
+        while(node){
+            // text = node?.GetNext() === undefined ? text + `[${node.GetItem()}]` : text + `[${node.GetItem()}] -> `
+            text = node?.ToString()
+            node = node?.GetNext()
+        }
+        
+        return text;
+    }
+
+    public Reverse(): void {
+        let pHead: Node<T> | undefined = this.head;
+        let pTail: Node<T> | undefined = this.tail;
+
+        let hNext: Node<T> | undefined;
+        let tPrev: Node<T> | undefined;
+
+        let pivot: number = Math.ceil(this.count / 2);
+        let count: number = 0;
+        
+        while(count < pivot){
+            if(pHead === pTail){
+                count++;
+                continue
+            }
+
+            console.log(hNext?.GetNext())
+
+            hNext = hNext?.GetNext();
+            tPrev = this.GetPreviousNode(tPrev);
+
+
+            if(count === 0){
+                this.head = pTail
+                this.tail = pHead
+            }
+            else
+                [pHead, pTail] = [pTail, pHead]
+
+            pHead = hNext
+            pTail = tPrev;
+
+            count++
+        }
+
+        // console.log(this.head)
+
+        // console.log(this.head)
+        // this.ReverseNext();
+
+    }
+
+    public ReverseNext(): void{
+        let node: Node<T> | undefined = this.head;
+        while(node){
+            const prev = this.GetPreviousNode(node);
+            node.SetNext(prev)
+            node = prev;
+        }
+    }
+}
+
+
+export function TestNode(){
+    const list: LinkedList<string> = new LinkedList<string>()
+    list.AddTail("00000000000");
+    list.AddTail("11111111111");
+    list.AddTail("22222222222");
+    list.AddTail("33333333333");
+    list.AddTail("44444444444");
+    list.AddTail("55555555555");
+    // list.AddTail("66666666666");
+    // list.AddTail("77777777777");
+
+    console.log(list);
+    // console.log(list.ToString());
+
+    // list.RemoveHead()
+    // console.log(list);
+    // console.log(list.ToString());
+
+    // list.RemoveHead()
+    // console.log(list);
+    // console.log(list.ToString());
+    // console.log(list.ToArray());
+
+    list.Reverse()
+    console.log(list);
+
+    // list.RemoveTail();
+
+    // console.log(list.ToArray());
+    // console.log(list.IndexOf("1111111111"));
+    // console.log(list.Has("11111111111"));
+
+    // list.DeleteAt(1)
+
+    // list.DeleteAt(0)
+    // list.DeleteAt(0)
+    // list.DeleteAt(0)
+    // list.DeleteAt(0)
+    // list.DeleteAt(0)
+
+    // console.log(list.Size())
+}
+
+
+
+---------------------------------------------------------------------------------------------------
+
+
+// type NodeType<T = number> = {
+//     data: T, next: NodeType | undefined,
+// }
+// const Node: NodeType<number> = {
+//     data: 0,
+//     next: undefined,
+// };
+
+class Node<T = number>{
+    public static Empty = (): undefined => undefined;
+    public constructor(private item: T, private next: Node<T> | undefined = undefined){}
+
+    public SetNext(node: Node<T> | undefined): void {this.next = node}
+
+    public GetNext(): Node<T> | undefined{ return this.next; }
+
+    public SetItem(item: T): void {this.item = item}
+
+    public GetItem(): T { return this.item; }
+}
+
+
+export class LinkedList<T = number>{
+    public head: Node<T> | undefined;
+    public tail: Node<T> | undefined;
+    public size: number;
+    public count: number = 0;
+
+    private last: number = 0;
+
+    public constructor(size: number){ 
+        if(size <= 0) 
+            throw new Error(`Invalid size(${size}) input! Size must not less than 0`);
+        this.size = size;
+        this.last = size - 1;
+    }
+
+    private CheckCountSize = (): boolean => this.count > this.last
+    
+    public GetLastIndex(): number { return this.last; }
+
+    public IsEmpty = (): boolean => this.head === undefined
+
+    public AddTail(item: T): void{
+        if(this.CheckCountSize())
+            throw new Error(`Cant Add "${(typeof item).toUpperCase()}"! Count(${this.size + 1}) is greater than or equal to size(${this.size}`);
+        
+        let node: Node<T> | undefined = new Node<T>(item);
+
+        this.count++;
+
+        if (this.IsEmpty()){
+            this.head = this.tail  = node;
+            return;
+        }
+        this.tail?.SetNext(node);
+        this.tail = node;
+    }
+
+    public AddHead(item: T): void {
+        if(this.CheckCountSize())
+            throw new Error(`Cant Add "${(typeof item).toUpperCase()}"! Count(${this.size + 1}) is greater than or equal to size(${this.size}`);
+        
+        this.count++;
+
+        let node: Node<T> | undefined = this.head;
+        
+        if (this.IsEmpty()){
+            this.head = this.tail  = node;
+            return;
+        }
+
+        this.head = new Node(item, node)
+    }
+
+    public IndexOf(item: T): number {
+        let index: number = 0;
+        let node: Node<T> | undefined = this.head;
+
+        while(node){
+            if(node?.GetItem() === item) return index;
+            node = node.GetNext();
+            index++;
+        }
+
+        return -1;
+    }
+
+    public Has(item: T): boolean { return this.IndexOf(item) !== -1; }
+    
+    public Clear(): void {
+        this.count = 0;
+        this.head = undefined;
+        this.tail = undefined;
+    }
+
+    public RemoveHead(): void{
+        if(this.IsEmpty())
+            throw new Error(`Cant Delete on the HEAD index because the LinkedList is empty`);
+
+        if (this.head === this.tail){
+            this.head = this.tail  = undefined;
+            this.count = 0;
+            return;
+        }
+
+        let node: Node<T> | undefined = this.head?.GetNext();
+        this.head?.SetNext(Node.Empty())
+        this.head = node;
+        this.count--;
+    }
+
+    public RemoveTail(): void{
+        if(this.IsEmpty())
+            throw new Error(`Cant Delete on the TAIL index because the LinkedList is empty`);
+        
+        if (this.head === this.tail){
+            this.head = this.tail  = undefined;
+            this.count = 0;
+            return;
+        }
+        
+        let prev: Node<T> | undefined = this.GetPreviousNode();
+        
+        if(!prev) return;
+
+        this.tail = prev;
+        this.tail?.SetNext(Node.Empty());
+        
+        this.count--;
+    }
+
+    private GetPreviousNode(): Node<T> | undefined {
+        let current: Node<T> | undefined = this.head;
+        
+        while(current){
+            if(current.GetNext() === this.tail){
+                this.count--;
+                return current;
+            }
+            current = current?.GetNext()
+        }
+        
+        return undefined;
+    }
+ 
+    public ToArray(): T[] {
+        const list: T[]= [];
+        let node: Node<T> | undefined = this.head;
+
+        while(node){
+            list.push(node?.GetItem())
+            node = node?.GetNext()
+        }
+
+        return list;
+    }
+
+    public ToString(): string {
+        let node: Node<T> | undefined = this.head;
+        let text: string = "";
+
+        while(node){
+            text = node?.GetNext() === undefined ? text + `[${node.GetItem()}]` : text + `[${node.GetItem()}] -> `
+            node = node?.GetNext()
+        }
+        
+        return text;
+    }
+}
+
+
+export function TestNode(){
+    const list: LinkedList<string> = new LinkedList<string>(4)
+    list.AddTail("11111111111");
+    list.AddTail("22222222222");
+    list.AddTail("33333333333");
+    list.AddHead("00000000000")
+
+    console.log(list);
+    console.log(list.ToString());
+
+    list.RemoveHead()
+
+    console.log(list.ToString());
+
+    list.RemoveTail();
+
+    console.log(list.ToArray());
+
+
+    // console.log(list.IndexOf("1111111111"));
+    // console.log(list.Has("11111111111"));
+
+
+    // list.DeleteAt(1)
+
+    // list.DeleteAt(0)
+    // list.DeleteAt(0)
+    // list.DeleteAt(0)
+    // list.DeleteAt(0)
+
+    // list.DeleteAt(0)
+    // console.log(list.Size())
+}
+
+
+
+
+
+// type NodeType<T = number> = {
+//     data: T, next: NodeType | undefined,
+// }
+// const Node: NodeType<number> = {
+//     data: 0,
+//     next: undefined,
+// };
+
+class Node<T = number>{
+    public static Empty = (): any => undefined;
+    public constructor(private item: T, private next: Node<T> | undefined = undefined){}
+
+    public SetNext(node: Node<T>): void {this.next = node}
+
+    public GetNext(): Node<T> | undefined{ return this.next; }
+
+    public SetItem(item: T): void {this.item = item}
+
+    public GetItem(): T { return this.item; }
+}
+
+
+export class LinkedList<T = number>{
+    public head: Node<T> | undefined;
+    public tail: Node<T> | undefined;
+    public size: number;
+    public count: number = 0;
+
+    private last: number = 0;
+
+    public constructor(size: number){ 
+        if(size <= 0) 
+            throw new Error(`Invalid size(${size}) input! Size must not less than 0`);
+        this.size = size;
+        this.last = size - 1;
+    }
+
+    private CheckCountSize = (): boolean => this.count >= this.size
+    public GetLastIndex(): number { return this.last; }
+
+    public AddNode(node: Node<T>): void{
+        if(this.CheckCountSize())
+            throw new Error(`Cant Add Node"! Count(${this.size + 1}) is greater than or equal to size(${this.size}`);
+
+        this.SetHeadTails(node);
+        this.tail?.SetNext(node);
+        this.tail = node;
+        this.count++;
+    }
+
+    public Add(item: T): void{
+        if(this.CheckCountSize())
+            throw new Error(`Cant Add "${(typeof item).toUpperCase()}"! Count(${this.size + 1}) is greater than or equal to size(${this.size}`);
+        
+        this.AddNode(new Node<T>(item))
+    }
+
+    public SetHeadTails(node: Node<T>){
+        if (this.count === 0){
+            this.head = node;
+            this.tail = node;    
+        }
+    }
+    
+    public Clear(): void {
+        this.count = 0;
+        this.head = undefined;
+        this.tail = undefined;
+    }
+
+    public DeleteAt(index: number): void{
+        if(index > this.count)
+            throw new Error(`Cant Delete on index("${index})"! Index(${this.size + 1}) must be less than or equal to the size(${this.size}`);
+        
+        let currNode: Node<T> | undefined = this.head;
+        let prevNode: Node<T> | undefined;
+        this.Delete(0, currNode, prevNode);
+
+        // if(index === 0){
+        //     currNode = currNode?.GetNext();
+        //     this.head?.SetNext(Node.Empty());
+        //     this.head = currNode;
+        //     if (this.head === undefined) 
+        //         this.tail = undefined;
+        //     return;
+        // }
+        // let prevNode: Node<T> | undefined;
+        // let count: number = 1;
+        // while(count <= index && currNode?.GetNext()){
+        //     prevNode = currNode;
+        //     currNode = currNode.GetNext();
+
+
+        //     console.log("currNode")
+        //     console.log(currNode)
+        //     console.log("prevNode")
+        //     console.log(prevNode)
+
+        //     count++
+
+        //     if (count === this.last){
+        //         this.tail = prevNode;
+        //         this.tail?.SetNext(Node.Empty());
+        //     }
+        // }
+    }
+
+    private Delete(count: number, currNode: Node<T> | undefined, prevNode:  Node<T> | undefined): void {
+        if (count > this.last)
+            return;
+        
+        this.count--;
+        if(count === 0){
+            const tempNode: Node<T> | undefined = this.head?.GetNext();
+            this.head?.SetNext(Node.Empty())
+            this.head = tempNode;
+            if (this.head === undefined) 
+                this.tail = undefined;
+            return;
+        }
+
+
+
+        console.log(count + ") currNode")
+        console.log(currNode)
+        console.log(count + ") prevNode")
+        console.log(prevNode)
+        console.log("======================================")
+        count++;
+        return this.Delete(count, currNode?.GetNext(), currNode);
+    }
+}
+
+
+export function TestNode(){
+    const list: LinkedList<string> = new LinkedList<string>(4)
+    list.Add("11111111111");
+    // list.Add("2222222222");
+    // list.AddNode(new Node<string>("33333333333"))
+    // list.AddNode(new Node<string>("444444444444"))
+
+    console.log(list);
+    list.DeleteAt(0)
+    // list.DeleteAt(0)
+    // list.DeleteAt(0)
+    // list.DeleteAt(0)
+
+    // list.DeleteAt(2)
+    // console.log(list.Size())
+}
+
+
+
+
+
+// type NodeType<T = number> = {
+//     data: T, next: NodeType | undefined,
+// }
+// const Node: NodeType<number> = {
+//     data: 0,
+//     next: undefined,
+// };
+
+class Node<T = number>{
+    public static Empty = (): any => undefined;
+    public constructor(private item: T, private next: Node<T> | undefined = undefined){}
+
+    public SetNext(node: Node<T>): void {this.next = node}
+
+    public GetNext(): Node<T> | undefined{ return this.next; }
+
+    public SetItem(item: T): void {this.item = item}
+
+    public GetItem(): T { return this.item; }
+}
+
+
+export class LinkedList<T = number>{
+    public head: Node<T> | undefined;
+    public tail: Node<T> | undefined;
+    public size: number;
+    public count: number = 0;
+
+    public constructor(size: number){ 
+        if(size <= 0) throw new Error(`Invalid size(${size}) input! Size must not less than 0`);
+        this.size = size
+    }
+
+    private CheckSize = (): boolean => this.count >= this.size
+
+    public AddNode(node: Node<T>): void{
+        if(this.CheckSize())
+            throw new Error(`Cant Add Node"! Count(${this.size + 1}) is greater than or equal to size(${this.size}`);
+
+        this.SetHeadTails(node);
+        this.tail?.SetNext(node);
+        this.tail = node;
+        this.count++;
+    }
+
+    public Add(item: T): void{
+        if(this.CheckSize())
+            throw new Error(`Cant Add "${(typeof item).toUpperCase()}"! Count(${this.size + 1}) is greater than or equal to size(${this.size}`);
+        
+        this.AddNode(new Node<T>(item))
+    }
+
+    public SetHeadTails(node: Node<T>){
+        if (this.count === 0){
+            this.head = node;
+            this.tail = node;    
+        }
+    }
+    
+    public Clear(): void {
+        this.count = 0;
+        this.head = undefined;
+        this.tail = undefined;
+    }
+
+    public DeleteAt(index: number): void{
+        if(index > this.size - 1)
+            throw new Error(`Cant Delete on index("${index})"! Index(${this.size + 1}) must be less than or equal to the size(${this.size}`);
+        
+        let currNode: Node<T> | undefined = this.head;
+
+        if(index === 0){
+            currNode = currNode?.GetNext();
+            this.head?.SetNext(Node.Empty());
+            this.head = currNode;
+            if (this.head === undefined) 
+            this.tail = undefined;
+            return;
+        }
+
+        let prevNode: Node<T> | undefined;
+        let count: number = 1;
+        while(count <= index && currNode?.GetNext()){
+            prevNode = currNode;
+            currNode = currNode.GetNext();
+            console.log("currNode")
+            console.log(currNode)
+            console.log("prevNode")
+            console.log(prevNode)
+            count++
+        }
+        this.tail = prevNode;
+        this.tail?.SetNext(Node.Empty());
+    }
+}
+
+
+export function TestNode(){
+    const list: LinkedList<string> = new LinkedList<string>(4)
+    list.Add("11111111111");
+    list.Add("2222222222");
+    list.AddNode(new Node<string>("33333333333"))
+    list.AddNode(new Node<string>("444444444444"))
+
+    console.log(list);
+    list.DeleteAt(1)
+    // list.DeleteAt(2)
+    // console.log(list.Size())
+}
+
+
+
+
+import Collection from "./Collection";
+// import { CircularQueue } from "./Collection"
+export function SampleCall(){
+    // const lq: Collections.Generic.LinearQueue<number> = new Collections.Generic.LinearQueue<number>(2, true);
+    // const cq: Collections.Generic.CircularQueue<number> = new Collections.Generic.CircularQueue<number>(3, true);
+
+    // lq.EQ(100);
+    // lq.EQ(200);
+    // lq.EQ(300);
+    // lq.EQ(400);
+
+    // lq.Print();
+
+    // cq.EQ(100);
+    // cq.EQ(200);
+    // cq.EQ(300);
+
+    // cq.LL();
+
+    // cq.EQ(400);
+    // cq.EQ(500);
+
+    // cq.DQ();
+    // cq.DQ();
+
+    // cq.EQ(400);
+    
+    // cq.LL();
+}
+
+// export let lq: Collections.Generic.LinearQueue<number>;
+// export let cq: Collections.Generic.CircularQueue<number>;
+
+// export const SampleLQ = (size: number): void => { lq = new Collections.Generic.LinearQueue<number>(size, true);}
+// export const SampleEQ = (value: number): void => { lq.EQ(value); }
+// export const SampleDQ = (): number | undefined => lq.DQ();
+// export const SamplePK = (): number | undefined => lq.Peek();
+
+// export const CCQ = (size: number): void => { cq = new Collections.Generic.CircularQueue<number>(3, true);
+// export const CQEQ = (value: number): void => { lq.EQ(value); }
+// export const CQDQ = (): number | undefined => lq.DQ();
+// export const CQPK = (): number | undefined => lq.Peek();
+
+export namespace Collections.Generic{
+    export interface IQueue<T = number | undefined>{
+        Enqueue: (newValue: T) => void;
+        Dequeue: () => T | undefined;
+    }
+    export abstract class Queue<T = number | undefined> extends Collection<T> implements IQueue<T>{
+        protected collectionName: string;
+        protected isDebug: boolean = false;
+
+        protected queue: T[] | undefined[] = [];
+
+        protected frontIndex: number = -1;
+        protected rearIndex: number = -1;
+        protected readonly size: number = -1;
+
+        public constructor(size: number, collectionName: string, isDebug: boolean = false){
+            super();
+            this.size = size;
+            this.isDebug = isDebug;
+            // if(isDebug) console.log(`${collectionName} is created with size ${size} `)
+            this.queue.length = size;
+            this.collectionName = collectionName;
+            this.Reset();
+        }
+        
+        public abstract readonly Enqueue: (newValue: T) => void;
+        public abstract readonly Dequeue: () => T | undefined;
+
+        public readonly EQ = (newValue: T): void => this.Enqueue(newValue);
+        public readonly DQ = (): T | undefined  => this.Dequeue();
+        public readonly LL = (): void  => this.LogList();
+        public readonly IsFrontEnded = (): boolean => this.frontIndex > this.rearIndex;
+        public readonly IsRearEnded = (): boolean => this.rearIndex >= this.GetSize();
+        
+        public readonly IsNextEmpty = (index: number): boolean => {
+            console.log(`this.queue[${index + 1}](${this.queue[index + 1]}) === undefined = ${this.queue[index + 1] === undefined} `)
+            return this.queue[index + 1] === undefined;
+        }
+
+        public readonly GetFront = (): number | undefined => this.frontIndex;
+        public readonly GetRear = (): number | undefined => this.rearIndex;
+        
+        public override readonly GetSize = ():number => this.queue.length - 1;
+
+        public override readonly IsEmpty = (): boolean => this.frontIndex === -1;
+
+        public override readonly IsFull = (): boolean => this.frontIndex === 0 && this.IsRearEnded(); 
+
+        public override readonly Peek = ():  T | undefined => this.queue[this.frontIndex];
+
+        public override readonly ToString = (): string => this.queue.toString();
+
+        public override readonly LogList = (): void => {
+            console.log(this.collectionName + ": ");
+            console.log(this.queue);
+        }
+        
+        public override readonly Reset = ():void => {
+            if(this.isDebug)
+                console.log(this.collectionName + " is reset");
+            this.frontIndex = -1;
+            this.rearIndex = -1;
+        };
+    }
+    
+    export class LinearQueue<T = number | undefined> extends Queue<T> {
+        public constructor(size: number, isDebug: boolean = false){
+            super(size, "LinearQueue", isDebug);
+        }
+
+        public override readonly Enqueue = (newValue: T): void => {
+            if(this.IsFull()) {
+                this.LogError(this.collectionName, "Full", "Added/Enqueue", this.GetSize(), this.rearIndex, "Rear Index");
+                return;
+            }
+
+            if(this.IsEmpty())
+                this.frontIndex = 0;
+
+            this.queue[++this.rearIndex] = newValue;
+
+            if (this.isDebug){
+                this.LogList();
+                this.LogSuccess(this.collectionName, "Added/Enqueue", this.queue, this.rearIndex, "Rear index");
+            }
+        };
+
+        public Dequeue = (): T | undefined => {
+            if(this.IsEmpty()) {
+                this.LogError(this.collectionName, "Empty", "Dequeued", this.size, this.frontIndex, "Front Index");
+                return undefined;
+            }
+
+            if (this.isDebug){
+                this.LogList();
+                this.LogSuccess(this.collectionName, "Removed/Dequeued", this.queue, this.frontIndex , "Front index");
+            }
+
+            this.queue[this.frontIndex] = undefined;
+            const result: T | undefined = this.queue[this.frontIndex++];
+     
+            if(this.IsFrontEnded())
+                this.Reset();
+
+            return result;
+        };
+    }
+
+    export class CircularQueue<T = number | undefined> extends Queue<T> {
+        
+        public constructor(size: number, isDebug: boolean = false){
+            super(size, "CircularQueue", isDebug);
+        }
+        // private IsRearEnd = (): boolean => this.rearIndex >= this.queue.length - 1;
+        public override readonly IsFull = (): boolean => {
+            console.log("this.rearIndex >= this.queue.length - 1 || this.rearIndex + 1 === this.frontIndex");
+            console.log(`(${this.rearIndex} >= ${this.queue.length - 1} || ${this.rearIndex + 1} === ${this.frontIndex}) = ${this.rearIndex >= this.queue.length - 1 || this.rearIndex + 1 === this.frontIndex}`);
+            console.log("---------------------------------------------------------------------------------");
+
+            return this.rearIndex >= this.queue.length - 1 || this.rearIndex + 1 === this.frontIndex
+        };
+
+        // Fix Enqueue and Dequeue of Cicular Queue
+        
+        public override readonly Enqueue = (newValue: T): void => {
+            let tempRear: number = this.rearIndex;
+
+            if(this.IsFull())
+                this.rearIndex = -1;
+            // if(!this.IsNextEmpty(this.rearIndex))
+
+            if(!this.IsNextEmpty(this.rearIndex)){
+                this.LogError(this.collectionName, "Full", "Added/Enqueue", this.GetSize() + 1, this.rearIndex, "Rear Index");
+                return;
+            }
+            if(this.IsEmpty()) 
+                this.frontIndex = 0;
+            // if(this.rearIndex >= this.queue.length - 1 && !this.IsNextEmpty(this.rearIndex)){
+            //     this.LogError(this.collectionName, "Full", "Add/Enqueue", this.GetSize() + 1, this.rearIndex, "Rear Index");
+            //     return;
+            // }
+            // console.log(`this.rearIndex >= this.queue.length - 1`)
+            // console.log(`${this.rearIndex} >= ${this.queue.length - 1} = ${this.rearIndex >= this.queue.length - 1}`)
+            
+
+            
+            // if(this.IsRearEnd())
+            //     this.rearIndex = -1
+            
+            // if(this.rearIndex === this.frontIndex){
+            //     this.rearIndex = tempRear;
+            //     console.log("rear: " + this.rearIndex + ", front: " + this.frontIndex)
+            //     this.LogError(this.collectionName, "Full", "Add/Enqueue", this.GetSize() + 1, this.rearIndex, "Rear Index");
+            //     return;
+            // }
+
+            //     this.rearIndex = -1
+            //     if(this.IsNextEmpty(this.rearIndex))
+            //         this.LogError(this.collectionName, "Full", "Add/Enqueue", this.GetSize() + 1, this.rearIndex, "Rear Index");
+            //     return;
+            // }
+
+
+            // if(this.IsNextEmpty(this.rearIndex)){
+            //     this.LogError(this.collectionName, "Full", "Add/Enqueue", this.GetSize() + 1, this.rearIndex, "Rear Index");
+            //     return;
+            // }
+            
+            
+            console.log("Enqueue " + this.collectionName)
+            
+            // if (this.rearIndex > this.queue.length - 1 && this.queue[0] === undefined)
+
+            // this.rearIndex = this.rearIndex > this.queue.length - 1 ? 0 : this.rearIndex + 1;
+
+            this.rearIndex++;
+
+            this.queue[this.rearIndex] = newValue;
+
+            if (this.isDebug){
+                this.LogList();
+                console.log("rear: " + this.rearIndex + ", front: " + this.frontIndex)
+                this.LogSuccess("Queue", "Added/Enqueue", this.queue, this.rearIndex, "Rear index");
+            }
+        }
+
+        public Dequeue = (): T | undefined => {
+            console.log("Dequeue " + this.collectionName)
+            if(this.IsEmpty()) {
+                this.LogError("Queue", "Empty", "Dequeued", this.size, this.frontIndex, "Front Index");
+                return undefined;
+            }
+
+            // if(this.rearIndex < this.frontIndex && !this.IsNextEmpty(this.rearIndex)){
+            //     this.LogError("Queue", "Empty", "Dequeued", this.size, this.frontIndex, "Front Index");
+            //     return;
+            // }
+
+            if (this.isDebug){
+                this.LogList();
+                console.log("rear: " + this.rearIndex + ", front: " + this.frontIndex)
+                this.LogSuccess("Queue", "Removed/Dequeued", this.queue, this.frontIndex, "Front index");
+            }
+
+            this.queue[this.frontIndex] = undefined;
+            const result: T | undefined = this.queue[this.frontIndex++];
+        
+            // if(this.IsFinal())
+            //     this.Reset();
+
+            return result;
+        };
+    }
+        
+    //     public readonly Enqueue = (newValue: T): void => {
+
+    //         if(this.IsFull()) {
+    //             this.LogError("Queue", "Full", "Added/Enqueue", this.size, this.rearIndex, "Rear Index");
+    //             return;
+    //         }
+
+    //         super.frontIndex = 0;
+    //         this.queue[++this.rearIndex] = newValue;
+
+    //         if (this.isDebug){
+    //             this.LogList();
+    //             this.LogSuccess("Queue", "Added/Enqueue", this.queue, this.rearIndex, "Rear index");
+    //         }
+                
+    //     }
+        // public override Dequeue = (): T | undefined => {
+
+        //     // if(this.IsEmpty()) {
+        //     //     this.LogError("Queue", "Empty", "Dequeued", this.size, this.frontIndex, "Front Index");
+        //     //     return undefined;
+        //     // }
+
+        //     // if (this.isDebug){
+        //     //     this.LogList();
+        //     //     this.LogSuccess("Queue", "Removed/Dequeued", this.queue, this.frontIndex , "Front index");
+        //     // }
+
+        //     // this.queue[this.frontIndex] = undefined;
+        //     // const result: T | undefined = this.queue[this.frontIndex++];
+     
+        //     // if(this.IsFinal())
+        //     //     this.Reset();
+
+        //     // return result;
+        // }
+
+    //     public readonly EQ = (newValue: T): void => this.Enqueue(newValue);
+    //     public readonly DQ = (): T | undefined  => this.Dequeue();
+
+    //     public readonly IsFinal = (): boolean => this.frontIndex > this.rearIndex;
+
+    //     public override readonly GetSize = ():number => this.queue.length - 1;
+    //     public override readonly IsEmpty = (): boolean => this.frontIndex === -1;
+    //     public override readonly IsFull = (): boolean => this.frontIndex === 0 && this.rearIndex >= this.GetSize(); 
+    //     public override readonly Peek = ():  T | undefined => this.queue[this.frontIndex];
+    //     public override readonly ToString = (): string => this.queue.toString();
+    //     public override readonly LogList = (): void => console.log("Queue: " + this.queue.toString());
+    //     public override readonly Reset = ():void => {
+    //         this.frontIndex = -1;
+    //         this.rearIndex = -1;
+    //     };
+    // }
+}
+
+
+// import React, { Fragment, useState, useReducer, useEffect, useContext, createContext, FormEvent } from "react"
+// import ReactDom from "react-dom/client"
+// enum Actions{
+//     ADD_TODO = "addTodo",
+//     TGL_TODO = "toggleTodo",
+// }
+// type ActionType = {
+//     type: string,
+//     payload: {
+//         username: string,
+//         id: number,
+//     }
+// }
+// type TodoType = {
+//     id: number,
+//     username: string,
+//     complete: boolean
+// }
+// let initialState: TodoType[] = [];
+
+// function NewTodo(todos: TodoType[], username: string): TodoType[]{
+//     const newTodo: TodoType = { 
+//         id: Date.now(),
+//         username: username,
+//         complete: false,
+//     }
+//     return [...todos, newTodo];
+// }
+
+// // function ToggleTodo(todos: TodoType[], id: number, username: string): TodoType[]{
+// //     const newTodo: TodoType[] = 
+// //     return [...todos, newTodo];
+// // }
+
+
+// function Reducer(todos: TodoType[], action: ActionType): TodoType[] {
+//     switch(action.type){
+//         case Actions.ADD_TODO:
+//             return NewTodo(todos, action.payload.username);
+//         case Actions.TGL_TODO:
+//             return todos.map(td => {
+//                 if(td.id === action.payload.id)
+//                     return { ...td, complete: !td.complete }
+//                 return td;
+//             })
+//         default:
+//             throw new Error()
+//     }
+// }
+// const DispatchContext:React.Context<React.Dispatch<ActionType> | undefined> = createContext<React.Context<React.Dispatch<ActionType> | undefined>>(Z);
+
+// export default function Reduction(): JSX.Element {
+//     const [todos, Dispatch] = useReducer(Reducer, initialState)
+//     const [username, SetUsername] = useState("")
+//     const DispatchContext = createContext(Dispatch);
+
+//     useEffect(() => {
+//         console.log(todos)
+//     }, [todos])
+    
+//     function SubmitHandler(e: FormEvent){
+//         e.preventDefault()
+//         const newState: ActionType = { type: Actions.ADD_TODO, payload: { username: username, id: Date.now() } }
+//         Dispatch(newState)
+//         SetUsername("")
+//     }
+
+
+//     return (
+//         // <DispatchContext.Provider value={DispatchContext} >
+//         <DispatchContext.Provider value={Dispatch}>
+//             <form onSubmit={SubmitHandler}>
+//                 <input 
+//                     type="text" 
+//                     value={username} 
+//                     onChange={e => SetUsername(e.target.value)} 
+//                     placeholder="Enter Username"/>
+//             </form>
+//             {todos.map( todo => <Todo todo={todo}/>)}
+//         </DispatchContext.Provider>
+//         // </DispatchContext.Provider>
+//     );
+// }
+
+// function Todo(props: {todo: TodoType} ): JSX.Element{
+//     const disp = useContext(DispatchContext);
+//     return (
+//         <div key={props.todo.id }>
+//             <span style={{ color: props.todo.complete ? "#AAA" : "#000", width: "100%"}}>
+//                 ({props.todo.id})
+//                 {" "+ props.todo.username}
+//             </span>
+//             <button 
+//                 style={{margin: "0px 10px" }} 
+//                 onClick={()=> 
+//                     disp({
+//                         type: Actions.TGL_TODO, 
+//                         payload: { 
+//                             ...props.todo, 
+//                             id: props.todo.id 
+//                         }
+//                     })
+//                 } value="Toggle"/>
+//             <button style={{margin: "0px 10px"}}>Delete</button>
+//         </div>
+//     );
+// }
