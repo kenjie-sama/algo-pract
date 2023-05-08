@@ -1,3 +1,6 @@
+/* eslint-disable prefer-const */
+/* eslint-disable @typescript-eslint/no-inferrable-types */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 const arr: number[] = [9, 6, 8, 8, 1, 8, 4, 2, 7, 2, 7];
 const target: number = 2;
 export const FirstLastPos = (): void => {
